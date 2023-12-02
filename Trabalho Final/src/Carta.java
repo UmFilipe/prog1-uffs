@@ -1,7 +1,7 @@
-public class Carta {
-    private Jogador jogador;
-    private int numero;
-    private int valor;
+public class Carta implements Comparable<Carta> {
+    public Jogador jogador;
+    public int numero;
+    public int valor;
 
     public Carta() {
         this.numero = 0;
@@ -28,11 +28,17 @@ public class Carta {
         }
     }
 
-    public void setJogador(Jogador jogador) {
-        this.jogador = jogador;
+    public String printCard(){
+        return this.numero + " - " + this.valor;
     }
 
-    public int getValor() {
-        return this.valor;
+    @Override
+    public int compareTo(Carta c) {
+        if (this.numero < c.numero) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
+    
 }

@@ -1,38 +1,37 @@
 import java.util.ArrayList;
 import java.util.Stack;
+public class Jogador implements Comparable<Jogador>{
+    public ArrayList<Carta> mao = new ArrayList<Carta>();
+    public ArrayList<Carta> cartasColetadas = new ArrayList<Carta>();
+    public String nome;
+    public int pontos = 0;
 
-public class Jogador implements Comparable<Jogador> {
-    private ArrayList<Carta> mao = new ArrayList<>();
-    private ArrayList<Carta> cartasColetadas = new ArrayList<>();
-    private String nome;
-    private int totalPontos = 0;
-
-    public void comprarCartas(Stack<Carta> baralho, int quantidade) {
-        for (int i = 0; i < quantidade; i++) {
+    public void comprarCartas(Stack<Carta> baralho, int amount){
+        for (int i = 0; i < amount; i++) {
             Carta carta = baralho.pop();
-            carta.setJogador(this);
-            mao.add(carta);
+            carta.jogador = this;
+            this.mao.add(carta);
         }
     }
 
-    public String exibirMao() {
-        StringBuilder res = new StringBuilder();
+    public String maoJogador(){
+        String res = "";
         for (Carta carta : mao) {
-            res.append(carta.getValor()).append(" ");
+            res += carta.numero + " ";
         }
-        return res.toString();
+        return res;
     }
 
-    public String exibirCartasColetadas() {
-        StringBuilder res = new StringBuilder();
+    public String imprimirCartasColetadas(){
+        String res = "";
         for (Carta carta : cartasColetadas) {
-            res.append(carta.getValor()).append(" ");
+            res += carta.numero + " ";
         }
-        return res.toString();
+        return res;
     }
 
     @Override
-    public int compareTo(Jogador outro) {
-        return Integer.compare(this.totalPontos, outro.totalPontos);
+    public int compareTo(Jogador other) {
+        return Integer.compare(this.pontos, other.pontos);
     }
 }
