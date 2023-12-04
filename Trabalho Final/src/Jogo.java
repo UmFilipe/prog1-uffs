@@ -1,8 +1,12 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Stack;
 
+
+import Componentes.Carta;
+import Componentes.Jogador;
 public class Jogo {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -18,7 +22,7 @@ public class Jogo {
         // Embaralhando
         Collections.shuffle(baralho);
 
-        // Criando os jogadores usando a quantidade de jogadores e o baralho previamente criados
+        // Criando os jogadores usando o baralho previamente criado
         ArrayList<Jogador> jogadores = criarJogadores(baralho, scanner);
 
         // Inicializando o tabuleiro
@@ -27,8 +31,8 @@ public class Jogo {
         // Chamando a função que inicia o jogo
         jogarJogo(jogadores, tabuleiro, scanner);
 
-        // Imprimindo o resultado final após o jogo
-        resultadoFinal(jogadores);
+        // Imprimindo o resultado do jogo
+        resultado(jogadores);
 
         scanner.close();
     }
@@ -36,43 +40,73 @@ public class Jogo {
     private static ArrayList<Jogador> criarJogadores(Stack<Carta> baralho, Scanner scanner) {
         ArrayList<Jogador> jogadores = new ArrayList<>();
         int quantidadeJogadores;
-
+        
+        // Verificando se a quantidade de jogadores está entre 3 e 6
         do {
             System.out.println("Digite o número de jogadores (entre 3 e 6): ");
             quantidadeJogadores = scanner.nextInt();
         } while (quantidadeJogadores < 3 || quantidadeJogadores > 6);
 
-        scanner.nextLine();
-
-        for (int i = 1; i <= quantidadeJogadores; i++) {
-            jogadores.add(new Jogador());
-            jogadores.get(i - 1).comprarCartas(baralho, 12);
-            System.out.println("Digite o nome do jogador " + i + ": ");
-            jogadores.get(i - 1).nome = scanner.nextLine();
+        scanner.nextLine(); 
+    
+        // Criando os jogadores e distribuindo as cartas iniciais
+        for (int i = 0; i < quantidadeJogadores; i++) {
+            Jogador jogador = new Jogador();
+            jogador.cartasIniciais(baralho);
+    
+            System.out.println("Digite o nome do jogador " + (i + 1) + ": ");
+            jogador.nome = scanner.nextLine();
             System.out.println();
+    
+            jogadores.add(jogador);
         }
+    
         return jogadores;
     }
+    
 
     private static ArrayList<ArrayList<Carta>> inicializarTabuleiro(Stack<Carta> baralho) {
         ArrayList<ArrayList<Carta>> tabuleiro = new ArrayList<>();
+    
         for (int i = 0; i < 5; i++) {
-            tabuleiro.add(new ArrayList<>());
+            ArrayList<Carta> linha = new ArrayList<>();
+    
             for (int j = 0; j < 5; j++) {
-                tabuleiro.get(i).add(j == 0 ? baralho.pop() : new Carta());
+                Carta carta;
+                if (j == 0) {
+                    carta = baralho.pop();
+                } else {
+                    carta = new Carta();
+                }
+                linha.add(carta);
             }
+    
+            tabuleiro.add(linha);
         }
+    
         return tabuleiro;
     }
 
     private static void jogarJogo(ArrayList<Jogador> jogadores, ArrayList<ArrayList<Carta>> tabuleiro, Scanner scanner) {
+        // Enquanto houver cartas na mão de algum jogador, o jogo continua
         while (!jogadores.get(0).mao.isEmpty()) {
+            // Criando uma lista com as cartas jogadas
             ArrayList<Carta> cartasJogadas = new ArrayList<>();
 
+            // Imprimindo o tabuleiro e a pontuação de cada jogador
             imprimirTabuleiro(tabuleiro);
             System.out.println();
-            quantidadePontos(jogadores);
+            for (Jogador jogador : jogadores) {
+            if (jogador != jogadores.get(jogadores.size() - 1)) {
+                System.out.print(jogador.nome + ": " + jogador.pontos + " | ");
+            } else {
+                System.out.println(jogador.nome + ": " + jogador.pontos);
+            }
+        }
 
+        System.out.println();
+
+            // Imprimindo as cartas na mão de cada jogador e solicitando a jogada ao usuário
             for (Jogador jogador : jogadores) {
                 System.out.println("Jogada de " + jogador.nome + ": ");
                 System.out.println(jogador.imprimirCartas(false));
@@ -81,6 +115,7 @@ public class Jogo {
                 cartasJogadas.add(jogador.mao.remove(carta));
             }
 
+            // Ordenando as cartas jogadas e inserindo no tabuleiro
             Collections.sort(cartasJogadas);
             inserirCartas(tabuleiro, cartasJogadas);
         }
@@ -91,7 +126,7 @@ public class Jogo {
         for (ArrayList<Carta> linha : tabuleiro) {
             for (Carta carta : linha) {
                 System.out.print("(");
-                if (carta.numero == 0) {
+                if (carta.numero == -1) {
                     System.out.print("-");
                 } else {
                     System.out.print(carta.numero);
@@ -102,27 +137,16 @@ public class Jogo {
         }
     }
 
-    private static void quantidadePontos(ArrayList<Jogador> jogadores) {
-        for (Jogador jogador : jogadores) {
-            if (jogador != jogadores.get(jogadores.size() - 1)) {
-                System.out.print(jogador.nome + ": " + jogador.pontos + " | ");
-            } else {
-                System.out.println(jogador.nome + ": " + jogador.pontos);
-
-            }
-        }
-
-        System.out.println();
-
-    }
-
     private static int jogada(ArrayList<Carta> mao, Scanner scanner) {
-        int numero = 0, carta = -1;
+        int numero = 0;
+        int carta = -1; 
+
         System.out.println("Escolha uma carta para jogar: ");
 
+        // Verificando se a carta escolhida está na mão do jogador
         while (carta == -1) {
             try {
-                numero = Integer.parseInt(scanner.nextLine());
+                numero = scanner.nextInt();
                 for (int i = 0; i < mao.size(); i++) {
                     if (mao.get(i).numero == numero) {
                         carta = i;
@@ -134,10 +158,14 @@ public class Jogo {
                     System.out.println("Esta carta não está na sua mão.");
                     System.out.println("Escolha uma carta para jogar: ");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Você deve inserir um número inteiro.");
+
+            // Verificando se a entrada está no formato correto (inteiro)
+            } catch (InputMismatchException e) {
+                scanner.next();
+                System.out.println("A entrada deve ser um número inteiro.");
                 System.out.println("Escolha uma carta para jogar: ");
             }
+                
         }
 
         return carta;
@@ -145,101 +173,132 @@ public class Jogo {
 
     private static void inserirCartas(ArrayList<ArrayList<Carta>> tabuleiro, ArrayList<Carta> cartasJogadas) {
         for (Carta cartaJogada : cartasJogadas) {
-            int indiceLinha = menorDiferenca(tabuleiro, cartaJogada);
+            // Procura a linha com a menor diferença entre a carta jogada e as cartas da linha
+            int linha = menorDiferenca(tabuleiro, cartaJogada);
     
-            if (indiceLinha == -1) {
-                indiceLinha = maiorNumero(tabuleiro);
+            // Se não houver nenhuma carta menor que a carta jogada, insere na linha com o maior número
+            if (linha == -1) {
+                linha = maiorNumero(tabuleiro);
             }
     
             ArrayList<Carta> cartasRemovidasDaLinha = new ArrayList<>();
             int pontos = 0;
     
-            var linha = tabuleiro.get(indiceLinha);
+            var l = tabuleiro.get(linha);
     
-            for (int i = 0; i < linha.size(); i++) {
-                Carta cartaAtual = linha.get(i);
-                if (cartaAtual.numero != 0) {
+            // Remove as cartas da linha e adiciona os pontos
+            for (int i = 0; i < l.size(); i++) {
+                Carta cartaAtual = l.get(i);
+    
+                if (cartaAtual.numero != -1) {
                     cartasRemovidasDaLinha.add(cartaAtual);
                     pontos += cartaAtual.valor;
                 }
     
-                if (cartaAtual.numero == 0 || i == 4) {
-                    if ((i == 4 || linha.get(i - 1).numero > cartaJogada.numero)) {
+                // Verifica se a carta atual é vazia
+                if (cartaAtual.numero == -1) {
+                    if ((i > 0 && l.get(i - 1).numero > cartaJogada.numero)) {
                         cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidasDaLinha);
                         cartaJogada.jogador.pontos += pontos;
-                        linha.clear();
-                        linha.add(cartaJogada);
+                        l.clear();
+                        l.add(cartaJogada);
                         for (int j = 1; j < 5; j++) {
-                            linha.add(new Carta());
+                            l.add(new Carta());
                         }
                     } else {
-                        linha.remove(i);
-                        linha.add(i, cartaJogada);
+                        l.remove(i);
+                        l.add(i, cartaJogada);
+                    }
+                    break;
+                    } else if(i == 4)   { 
+                    cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidasDaLinha);
+                    cartaJogada.jogador.pontos += pontos;
+                    l.clear();
+                    l.add(cartaJogada);
+                    for (int j = 1; j < 5; j++) {
+                        l.add(new Carta());
                     }
                     break;
                 }
+                }
             }
         }
-    }
     
 
     private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
-        int maiorNumero = Integer.MIN_VALUE, indiceLinha = -1;
+        int maiorNumero = Integer.MIN_VALUE;
+        int linha = -1;
     
+        // Procurando a linha com o maior número
         for (int i = 0; i < tabuleiro.size(); i++) {
-            var linha = tabuleiro.get(i);
-            for (int j = linha.size() - 1; j >= 0; j--) {
-                Carta cartaAtual = linha.get(j);
-                if (cartaAtual.numero != 0 && cartaAtual.numero > maiorNumero) {
+            var l = tabuleiro.get(i);
+            
+            for (int j = l.size() - 1; j >= 0; j--) {
+                Carta cartaAtual = l.get(j);
+                if (cartaAtual.numero != -1 && cartaAtual.numero > maiorNumero) {
                     maiorNumero = cartaAtual.numero;
-                    indiceLinha = i;
+                    linha = i;
                     break;
                 }
             }
         }
     
-        return indiceLinha;
+        return linha;
     }
-    
 
     private static int menorDiferenca(ArrayList<ArrayList<Carta>> tabuleiro, Carta cartaJogada) {
-        int menorDiferenca = Integer.MAX_VALUE, indiceLinha = -1;
+        int menorDiferenca = Integer.MAX_VALUE;
+        int linha = -1;
     
+        // Procurando a linha com a menor diferença entre a carta jogada e as cartas da linha
         for (int i = 0; i < tabuleiro.size(); i++) {
-            var linha = tabuleiro.get(i);
-            for (int j = linha.size() - 1; j >= 0; j--) {
-                Carta cartaAtual = linha.get(j);
-                if (cartaAtual.numero != 0 && cartaAtual.numero < cartaJogada.numero) {
+            var l = tabuleiro.get(i);
+    
+            for (int j = l.size() - 1; j >= 0; j--) {
+                Carta cartaAtual = l.get(j);
+                if (cartaAtual.numero != -1 && cartaAtual.numero < cartaJogada.numero) {
                     int diferenca = cartaJogada.numero - cartaAtual.numero;
+    
                     if (diferenca < menorDiferenca) {
                         menorDiferenca = diferenca;
-                        indiceLinha = i;
+                        linha = i;
                     }
-                    break;
                 }
             }
         }
     
-        return indiceLinha;
+        return linha;
     }
 
-    private static void resultadoFinal(ArrayList<Jogador> jogadores) {
-        Collections.sort(jogadores);
+    private static void resultado(ArrayList<Jogador> jogadores) {
 
-        System.out.println("Resultado final:");
+        System.out.println("Resultado:");
 
+        // Imprimindo as cartas coletadas por cada jogador
         for (Jogador jogador : jogadores) {
-            System.out.println(jogador.nome);
-            System.out.println("Cartas coletadas: " + jogador.imprimirCartas(true));
-            System.out.println("Pontuação: " + jogador.pontos);
+            System.out.println("Cartas coletadas por: "+ jogador.nome);
+            System.out.println(jogador.imprimirCartas(true));
             System.out.println();
         }
 
-        System.out.println("Vencedor(es)");
+        // Ordenando os jogadores pelo número de pontos
+        Collections.sort(jogadores);
+        
+        for (Jogador jogador : jogadores) {
+            System.out.print("Pontuação de " + jogador.nome + ": " + jogador.pontos);
+        
+            if (jogadores.indexOf(jogador) < jogadores.size() - 1) {
+                System.out.print(" | ");
+            }
+        }
+        
+
+        // Imprimindo o(s) vencedor(es)
+        System.out.println("Vencedor(es): ");
 
         for (Jogador vencedor : jogadores) {
             if (vencedor.pontos == jogadores.get(0).pontos) {
-                System.out.println(vencedor.nome);
+                System.out.print(vencedor.nome);
             }
         }
     }
