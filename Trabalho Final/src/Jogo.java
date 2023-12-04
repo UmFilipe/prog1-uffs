@@ -225,27 +225,25 @@ public class Jogo {
         }
     
 
-    private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
-        int maiorNumero = Integer.MIN_VALUE;
-        int linha = -1;
-    
-        // Procurando a linha com o maior número
-        for (int i = 0; i < tabuleiro.size(); i++) {
-            var l = tabuleiro.get(i);
-            
-            for (int j = l.size() - 1; j >= 0; j--) {
-                Carta cartaAtual = l.get(j);
-                if (cartaAtual.numero != -1 && cartaAtual.numero > maiorNumero) {
-                    maiorNumero = cartaAtual.numero;
-                    linha = i;
-                    break;
+        private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
+            int maiorNumero = Integer.MIN_VALUE;
+            int linha = -1;
+        
+            // Procurando a linha com a maior carta não vazia
+            for (int i = 0; i < tabuleiro.size(); i++) {
+                var l = tabuleiro.get(i);
+        
+                for (int j = 0; j < l.size(); j++) {
+                    Carta cartaAtual = l.get(j);
+                    if (cartaAtual.numero != -1 && cartaAtual.numero > maiorNumero) {
+                        maiorNumero = cartaAtual.numero;
+                        linha = i;
+                    }
                 }
             }
+        
+            return linha;
         }
-    
-        return linha;
-    }
-
     private static int menorDiferenca(ArrayList<ArrayList<Carta>> tabuleiro, Carta cartaJogada) {
         int menorDiferenca = Integer.MAX_VALUE;
         int linha = -1;
