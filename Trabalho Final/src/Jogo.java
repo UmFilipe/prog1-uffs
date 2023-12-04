@@ -171,61 +171,57 @@ public class Jogo {
         return carta;
     }
 
-    private static void inserirCartas(ArrayList<ArrayList<Carta>> tabuleiro, ArrayList<Carta> cartasJogadas) {
+        private static void inserirCartas(ArrayList<ArrayList<Carta>> tabuleiro, ArrayList<Carta> cartasJogadas) {
         for (Carta cartaJogada : cartasJogadas) {
-            // Procura a linha com a menor diferença entre a carta jogada e as cartas da linha
-            int linha = menorDiferenca(tabuleiro, cartaJogada);
-    
-            // Se não houver nenhuma carta menor que a carta jogada, insere na linha com o maior número
-            if (linha == -1) {
-                linha = maiorNumero(tabuleiro);
+            int indiceLinha = menorDiferenca(tabuleiro, cartaJogada);
+
+            if (indiceLinha == -1) {
+                indiceLinha = maiorNumero(tabuleiro);
             }
-    
-            ArrayList<Carta> cartasRemovidasDaLinha = new ArrayList<>();
+
+            ArrayList<Carta> cartasRemovidas = new ArrayList<Carta>();
             int pontos = 0;
-    
-            var l = tabuleiro.get(linha);
-    
-            // Remove as cartas da linha e adiciona os pontos
-            for (int i = 0; i < l.size(); i++) {
-                Carta cartaAtual = l.get(i);
-    
-                if (cartaAtual.numero != -1) {
-                    cartasRemovidasDaLinha.add(cartaAtual);
-                    pontos += cartaAtual.valor;
+
+            var linha = tabuleiro.get(indiceLinha);
+
+            for (int i = 0; i < linha.size(); i++) {
+
+                if (linha.get(i).numero != -1){
+                    cartasRemovidas.add(linha.get(i));
+                    pontos += linha.get(i).valor;
                 }
-    
-                // Verifica se a carta atual é vazia
-                if (cartaAtual.numero == -1) {
-                    if ((i > 0 && l.get(i - 1).numero > cartaJogada.numero)) {
-                        cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidasDaLinha);
+
+                if (linha.get(i).numero == -1) {
+                    if(linha.get(i-1).numero > cartaJogada.numero){
+                        cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidas);
                         cartaJogada.jogador.pontos += pontos;
-                        l.clear();
-                        l.add(cartaJogada);
+                        linha.clear();
+                        linha.add(cartaJogada);
                         for (int j = 1; j < 5; j++) {
-                            l.add(new Carta());
+                            linha.add(new Carta());
                         }
-                    } else {
-                        l.remove(i);
-                        l.add(i, cartaJogada);
+                    }else{
+                        linha.remove(i);
+                        linha.add(i, cartaJogada);
                     }
                     break;
-                    } else if(i == 4)   { 
-                    cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidasDaLinha);
+                }else if(i == 4){
+                    cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidas);
                     cartaJogada.jogador.pontos += pontos;
-                    l.clear();
-                    l.add(cartaJogada);
+                    linha.clear();
+                    linha.add(cartaJogada);
                     for (int j = 1; j < 5; j++) {
-                        l.add(new Carta());
+                        linha.add(new Carta());
                     }
                     break;
-                }
                 }
             }
+
         }
+    }
     
 
-        private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
+    private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
             int maiorNumero = Integer.MIN_VALUE;
             int linha = -1;
         
@@ -254,13 +250,17 @@ public class Jogo {
     
             for (int j = l.size() - 1; j >= 0; j--) {
                 Carta cartaAtual = l.get(j);
-                if (cartaAtual.numero != -1 && cartaAtual.numero < cartaJogada.numero) {
-                    int diferenca = cartaJogada.numero - cartaAtual.numero;
+
+                if (cartaAtual.numero != -1) {
+                    if(cartaAtual.numero < cartaJogada.numero){
+                        int diferenca = cartaJogada.numero - cartaAtual.numero;
     
-                    if (diferenca < menorDiferenca) {
-                        menorDiferenca = diferenca;
-                        linha = i;
+                        if (diferenca < menorDiferenca) {
+                            menorDiferenca = diferenca;
+                            linha = i;
+                        }
                     }
+                    break;
                 }
             }
         }
@@ -289,14 +289,14 @@ public class Jogo {
                 System.out.print(" | ");
             }
         }
-        
+        System.out.println();
 
         // Imprimindo o(s) vencedor(es)
         System.out.println("Vencedor(es): ");
 
         for (Jogador vencedor : jogadores) {
             if (vencedor.pontos == jogadores.get(0).pontos) {
-                System.out.print(vencedor.nome);
+                System.out.println(vencedor.nome);
             }
         }
     }
