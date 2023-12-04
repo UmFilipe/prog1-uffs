@@ -23,7 +23,7 @@ public class Carta implements Comparable<Carta> {
         }
 
         // Se a carta possuir dois dígitos iguais, adicionamos 4 pontos.
-        if (numero / 10 == numero % 10) {
+        if (numero / 10 == numero % 10) { // ex: 33/10 = 3, 33%10 = 3
             this.valor += 4;
         }
     }

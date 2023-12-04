@@ -6,28 +6,26 @@ public class Jogador implements Comparable<Jogador>{
     public String nome;
     public int pontos = 0;
 
-    public void comprarCartas(Stack<Carta> baralho, int amount){
-        for (int i = 0; i < amount; i++) {
+    public void comprarCartas(Stack<Carta> baralho, int quantidade){
+        int i = 0;
+        while (i < quantidade) {
             Carta carta = baralho.pop();
             carta.jogador = this;
             this.mao.add(carta);
+            i++;
         }
+        
     }
 
-    public String maoJogador(){
-        String res = "";
-        for (Carta carta : mao) {
-            res += carta.numero + " ";
+    public String imprimirCartas(boolean coletadas) {
+        String cartas = "";
+        ArrayList<Carta> listaCartas = coletadas ? cartasColetadas : mao;
+    
+        for (Carta carta : listaCartas) {
+            cartas += carta.numero + " | ";
         }
-        return res;
-    }
-
-    public String imprimirCartasColetadas(){
-        String res = "";
-        for (Carta carta : cartasColetadas) {
-            res += carta.numero + " ";
-        }
-        return res;
+    
+        return cartas;
     }
 
     @Override
