@@ -193,32 +193,30 @@ public class Jogo {
 
                 if (linha.get(i).numero == -1) {
                     if(linha.get(i-1).numero > cartaJogada.numero){
-                        cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidas);
-                        cartaJogada.jogador.pontos += pontos;
-                        linha.clear();
-                        linha.add(cartaJogada);
-                        for (int j = 1; j < 5; j++) {
-                            linha.add(new Carta());
-                        }
+                        pegarLinha(cartaJogada, cartasRemovidas, pontos, linha);
                     }else{
                         linha.remove(i);
                         linha.add(i, cartaJogada);
                     }
                     break;
                 }else if(i == 4){
-                    cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidas);
-                    cartaJogada.jogador.pontos += pontos;
-                    linha.clear();
-                    linha.add(cartaJogada);
-                    for (int j = 1; j < 5; j++) {
-                        linha.add(new Carta());
-                    }
+                    pegarLinha(cartaJogada, cartasRemovidas, pontos, linha);
                     break;
                 }
             }
 
         }
     }
+
+    private static void pegarLinha(Carta cartaJogada, ArrayList<Carta> cartasRemovidas, int pontos, ArrayList<Carta> linha) {
+            cartaJogada.jogador.cartasColetadas.addAll(cartasRemovidas);
+            cartaJogada.jogador.pontos += pontos;
+            linha.clear();
+            linha.add(cartaJogada);
+            for (int j = 1; j < 5; j++) {
+                linha.add(new Carta());
+            }
+        }
     
 
     private static int maiorNumero(ArrayList<ArrayList<Carta>> tabuleiro) {
